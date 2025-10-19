@@ -10,7 +10,7 @@ function App() {
 
     <Router>
          <Routes>
-        <Route path="/" element={<Adminlogin />} />
+        <Route ////path="/" element={<Adminlogin />} />
         <Route path="/Admin" element={<Admin/>} />
         <Route path="/Creatuser" element={<Creatuser/>} />
        <Route path="/Userprofile/:id/:username" element={<Userprofile />} />
