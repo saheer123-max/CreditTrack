@@ -229,6 +229,20 @@ export default function Admin() {
           </div>
         </div>
 
+               <div className="fixed bottom-22 ">
+          <button
+             onClick={()=>navigate('/Products')}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-full shadow-lg transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="font-medium">Products</span>
+          </button>
+        </div>
+
+
+
+
+
         {/* Add User Floating Button */}
         <div className="fixed bottom-8 right-8">
           <button
