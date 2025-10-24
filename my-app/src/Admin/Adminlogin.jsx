@@ -9,34 +9,28 @@ export default function Adminlogin() {
   const [rememberMe, setRememberMe] = useState(false);
  const navigate=useNavigate();
 
+const handleLogin = async () => {
+  try {
+    const response = await axios.post('https://localhost:7044/api/Admin/login', {
+      Username: username,
+      Password: password
+    });
 
-  const handleLogin = async () => {
-    try{
+    // ✅ Correct destructuring
+    const { token, expiresAt, role ,userId} = response.data.data;
 
-      const response=await axios.post('https://localhost:7044/api/Admin/login',{
- 
-    Username: username, // ✅ must match backend LoginRequest.Username
-      Password: password  // ✅ must match backend LoginRequest.Password
-
-
-      });
-      console.log('Login successful:', response.data);
-      const token = response.data.data.token;
-   localStorage.setItem('token', token); 
-  navigate('/Admin');
-    }catch(error){
-     if (error.response) {
-      // API returned an error status
-      console.error('Login failed:', error.response.data);
-      alert(error.response.data.message || 'Login failed');
-    } else {
-      // Network error or other issues
-      console.error('Error during login:', error);
-      alert('Something went wrong');
-    }
-
-    }
-  };
+    localStorage.setItem('token', token);
+    localStorage.setItem('role', role);
+    localStorage.setItem("userid",userId);
+    // ✅ Correct navigation
+    if (role === 'Admin') navigate('/Admin');
+    else if (role === 'User') navigate('/Userhome');
+    else navigate('/');
+    
+  } catch (error) {
+    alert(error.response?.data?.message || 'Login failed');
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">

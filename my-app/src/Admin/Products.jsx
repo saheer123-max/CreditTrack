@@ -14,7 +14,7 @@ export default function Products() {
     price: "",
     categoryId: "",
     image: null, // 🔹 file
-    stock: "",
+    
   });
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Products() {
 
   const handleAdd = () => {
     setEditingId(null);
-    setFormData({ name: "", price: "", categoryId: "", image: null, stock: "" });
+    setFormData({ name: "", price: "", categoryId: "", image: null, });
     setShowModal(true);
   };
 
@@ -46,7 +46,7 @@ export default function Products() {
       price: product.price,
       categoryId: product.categoryId || "",
       image: null,
-      stock: product.stock,
+ 
     });
     setShowModal(true);
   };
@@ -64,7 +64,7 @@ export default function Products() {
 
   // ✅ handleSave with FormData for file upload
   const handleSave = async () => {
-    if (!formData.name || !formData.price || !formData.categoryId || !formData.stock) {
+    if (!formData.name || !formData.price || !formData.categoryId ) {
       alert("Please fill all required fields");
       return;
     }
@@ -74,7 +74,7 @@ export default function Products() {
       fd.append("Name", formData.name);
       fd.append("Price", formData.price);
       fd.append("CategoryId", formData.categoryId);
-      fd.append("Stock", formData.stock);
+     
       if (formData.image) fd.append("Image", formData.image);
 
       let res;
@@ -95,7 +95,7 @@ export default function Products() {
       }
 
       setShowModal(false);
-      setFormData({ name: "", price: "", categoryId: "", image: null, stock: "" });
+      setFormData({ name: "", price: "", categoryId: "", image: null});
     } catch (err) {
       console.error("Error saving product:", err);
       alert("❌ Failed to save product");
@@ -138,7 +138,7 @@ export default function Products() {
                 <th className="px-6 py-4 text-left text-sm font-semibold">Product Name</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold">Price</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Stock</th>
+               
                 <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
               </tr>
             </thead>
@@ -148,7 +148,7 @@ export default function Products() {
                   <td className="px-6 py-4 text-sm font-medium text-gray-800">{product.name}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{product.category?.name || "N/A"}</td>
                   <td className="px-6 py-4 text-sm font-semibold text-green-600">${product.price?.toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm">{product.stock}</td>
+                 
                   <td className="px-6 py-4 text-sm flex gap-2">
                     <button onClick={() => handleEdit(product)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded flex items-center gap-1">
                       <Edit2 size={16} /> Edit
@@ -184,7 +184,7 @@ export default function Products() {
                   <option value="2">Chocolate</option>
                   <option value="3">Drinks</option>
                 </select>
-                <input type="number" name="stock" value={formData.stock} onChange={handleChange} placeholder="Stock" className="w-full px-3 py-2 border border-green-300 rounded-lg" />
+              
               </div>
 
               <div className="flex gap-3 mt-6">

@@ -5,6 +5,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Creatuser from './Admin/Creatuser';
 import Userprofile from './Admin/Userprofile';
 import Products from './Admin/Products';
+import Home from './User/Home';
+import AdminChat from './Admin/Adminchat';
 function App() {
   return (
     <div>
@@ -16,6 +18,8 @@ function App() {
         <Route path="/Creatuser" element={<Creatuser/>} />
        <Route path="/Userprofile/:id/:username" element={<Userprofile />} />
            <Route path="/Products" element={<Products />} />
+              <Route path="/UserHome" element={<Home />} />
+                <Route path="/AdminChat" element={<AdminChat />} />
       </Routes>
     </Router>
      

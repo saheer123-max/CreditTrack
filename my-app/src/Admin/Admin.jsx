@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import Creatuser from './Creatuser'; // ✅ FIX: Import your CreateUser component
+import Creatuser from './Creatuser';
 
 import { 
   BarChart3, Users, TrendingUp, DollarSign, Calendar, 
   Search, Filter, Download, Plus, Settings, Bell, 
-  ChevronDown 
+  ChevronDown, MessageCircle
 } from 'lucide-react';
 
 export default function Admin() {
@@ -178,22 +178,22 @@ export default function Admin() {
                 <p className="text-gray-500">No users found.</p>
               )}
               {users.map((user, index) => (
-  <div
-    onClick={()=>navigate(`/Userprofile/${user.id}/${user.username}`)}
-    key={index}
-    className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg border border-gray-100"
-  >
-    <div className="flex items-center space-x-4">
-      <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-        {user.username}  {/* First letter of username */}
-      </div>
-      <div>
-        <h4 className="font-semibold text-gray-900">{user.username}</h4>
-        <span className="text-xs text-gray-500">Registered User</span>
-      </div>
-    </div>
-  </div>
-))}
+                <div
+                  onClick={() => navigate(`/Userprofile/${user.id}/${user.username}`)}
+                  key={index}
+                  className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg border border-gray-100 cursor-pointer"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      {user.username}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{user.username}</h4>
+                      <span className="text-xs text-gray-500">Registered User</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -203,7 +203,7 @@ export default function Admin() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Top Debtors</h3>
               {topDebtors.map((debtor, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                <div key={idx} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg mb-3">
                   <div>
                     <p className="font-medium text-gray-900 text-sm">{debtor.name}</p>
                     <p className="text-xs text-gray-500">{debtor.days} days overdue</p>
@@ -217,7 +217,7 @@ export default function Admin() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Top Creditors</h3>
               {topCreditors.map((creditor, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                <div key={idx} className="flex items-center justify-between p-3 bg-red-50 rounded-lg mb-3">
                   <div>
                     <p className="font-medium text-gray-900 text-sm">{creditor.name}</p>
                     <p className="text-xs text-gray-500">{creditor.days} days pending</p>
@@ -229,19 +229,26 @@ export default function Admin() {
           </div>
         </div>
 
-               <div className="fixed bottom-22 ">
+        {/* Floating Action Buttons */}
+        <div className="fixed bottom-8 left-8 flex flex-col gap-4">
+          {/* Products Button */}
           <button
-             onClick={()=>navigate('/Products')}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-full shadow-lg transition-colors"
+            onClick={() => navigate('/Products')}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full shadow-lg transition-colors"
           >
             <Plus className="w-5 h-5" />
             <span className="font-medium">Products</span>
           </button>
+
+          {/* Chat Button */}
+          <button
+            onClick={() => navigate('/AdminChat')}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-full shadow-lg transition-colors"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span className="font-medium">Chat</span>
+          </button>
         </div>
-
-
-
-
 
         {/* Add User Floating Button */}
         <div className="fixed bottom-8 right-8">
