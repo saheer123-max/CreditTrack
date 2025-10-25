@@ -1,14 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useRef} from 'react';
 import { MessageCircle, Send, X } from 'lucide-react';
 import * as signalR from "@microsoft/signalr";
 
 export default function Chat({ chatOpen, setChatOpen }) {
-  const [userId, setUserId] = useState("user123"); // test userId
+  const [userId, setUserId] = useState(''); // test userId
   const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState();
   const [connection, setConnection] = useState(null);
 
+
+
+
+  const userIdRef = useRef(null);
+
   useEffect(() => {
+    const id = localStorage.getItem("userid");
+    
+    if (id) {
+      userIdRef.current = id;
+      setUserId(id); // ✅ state-ലും സെറ്റ് ചെയ്യണം
+      console.log("User ID:", id);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    
     if (!userId) return; // wait until userId is set
 
     const connect = new signalR.HubConnectionBuilder()
@@ -35,6 +52,8 @@ const sendMessage = () => {
       .invoke("SendMessage", userId, "admin", message)
       .then(() => {
         console.log("Message sent successfully ✅");
+        console.log(typeof(message));
+        
         // message state update
         setMessages((prev) => [
           ...prev,

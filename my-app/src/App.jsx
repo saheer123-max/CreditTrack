@@ -7,6 +7,7 @@ import Userprofile from './Admin/Userprofile';
 import Products from './Admin/Products';
 import Home from './User/Home';
 import AdminChat from './Admin/Adminchat';
+import Transaction from './User/Transaction';
 function App() {
   return (
     <div>
@@ -20,6 +21,7 @@ function App() {
            <Route path="/Products" element={<Products />} />
               <Route path="/UserHome" element={<Home />} />
                 <Route path="/AdminChat" element={<AdminChat />} />
+                 <Route path="/transactions" element={<Transaction />} />
       </Routes>
     </Router>
      

@@ -2,16 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { MessageCircle, Package, CreditCard, Bell, Send, X, ChevronRight, ShoppingCart } from 'lucide-react';
 import axios from 'axios';
 import Chat from './Chat';
+import Transaction from './Transaction';
+import { useNavigate } from 'react-router-dom';
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState('products');
   const [chatOpen, setChatOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState([
-    { id: 1, sender: 'support', text: 'Hello! How can we help you today?', time: '10:30 AM' }
-  ]);
+ 
 
 const [product,setProducts]=useState([]);
 
+const navigate = useNavigate();
 
 useEffect(() => {
   axios.get("https://localhost:7044/api/Product/catogory")
@@ -54,12 +56,7 @@ const groupedProducts = (product || []) // product null ആണെങ്കിൽ
   //   ]
   // };
 
-  const transactions = [
-    { id: 1, date: '2025-10-20', item: 'Organic Green Tea', amount: '$24.99', status: 'Completed' },
-    { id: 2, date: '2025-10-18', item: 'Natural Honey', amount: '$18.50', status: 'Completed' },
-    { id: 3, date: '2025-10-15', item: 'Fresh Herbs Bundle', amount: '$12.99', status: 'Pending' },
-    { id: 4, date: '2025-10-12', item: 'Premium Coffee Beans', amount: '$32.00', status: 'Completed' }
-  ];
+  
 
   const announcements = [
     { id: 1, title: 'New Products Added!', desc: 'Check out our latest organic collection', date: 'Oct 22' },
@@ -118,17 +115,16 @@ const groupedProducts = (product || []) // product null ആണെങ്കിൽ
             <Package className="w-5 h-5" />
             Products
           </button>
-          <button
-            onClick={() => setActiveTab('transactions')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all ${
-              activeTab === 'transactions'
-                ? 'bg-green-600 text-white'
-                : 'text-green-700 hover:bg-green-50'
-            }`}
-          >
-            <CreditCard className="w-5 h-5" />
-            Transactions
-          </button>
+          
+       <button
+  onClick={() => navigate("/transactions")}
+  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all text-green-700 hover:bg-green-50"
+>
+  <CreditCard className="w-5 h-5" />
+  Transactions
+</button>
+
+
           <button
             onClick={() => setActiveTab('announcements')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all ${
@@ -181,7 +177,7 @@ const groupedProducts = (product || []) // product null ആണെങ്കിൽ
           )}
 
           {/* Transactions Section */}
-          {activeTab === 'transactions' && (
+          {/* {activeTab === 'transactions' && (
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-2xl font-bold text-green-700 mb-6">Transaction History</h2>
               <div className="space-y-3">
@@ -203,7 +199,7 @@ const groupedProducts = (product || []) // product null ആണെങ്കിൽ
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Announcements Section */}
           {activeTab === 'announcements' && (
