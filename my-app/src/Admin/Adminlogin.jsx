@@ -24,7 +24,7 @@ const handleLogin = async () => {
     localStorage.setItem("userid",userId);
     // ✅ Correct navigation
     if (role === 'Admin') navigate('/Admin');
-    else if (role === 'User') navigate('/Userhome');
+    else if (role === 'Customer') navigate('/Userhome');
     else navigate('/');
     
   } catch (error) {

@@ -1,72 +1,97 @@
-import React, { useState, useEffect ,useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, Send, X } from 'lucide-react';
 import * as signalR from "@microsoft/signalr";
+import axios from 'axios';
 
 export default function Chat({ chatOpen, setChatOpen }) {
-  const [userId, setUserId] = useState(''); // test userId
+  const [userId, setUserId] = useState('');
   const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState();
+  const [message, setMessage] = useState("");
   const [connection, setConnection] = useState(null);
-
-
-
-
+  const messagesEndRef = useRef(null);
   const userIdRef = useRef(null);
+  const token = localStorage.getItem("token");
 
+  // 1️⃣ Get userId from localStorage
   useEffect(() => {
     const id = localStorage.getItem("userid");
-    
     if (id) {
       userIdRef.current = id;
-      setUserId(id); // ✅ state-ലും സെറ്റ് ചെയ്യണം
-      console.log("User ID:", id);
+      setUserId(id);
     }
   }, []);
 
-
+  // 2️⃣ Scroll to bottom on new messages
   useEffect(() => {
-    
-    if (!userId) return; // wait until userId is set
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // 3️⃣ Fetch user history when chat opens
+  useEffect(() => {
+    if (!chatOpen || !userId) return;
+
+    const fetchHistory = async () => {
+      try {
+        const response = await axios.get(`https://localhost:7044/api/Chat/history/${userId}`);
+        const history = response.data || [];
+
+        const formatted = history.map(h => ({
+          sender: h.senderId === userId ? 'user' : 'admin',
+          text: h.message,
+          time: new Date(h.createdAt).toLocaleTimeString()
+        }));
+
+        setMessages(formatted);
+      } catch (err) {
+        console.error("Error fetching history:", err);
+      }
+    };
+
+    fetchHistory();
+  }, [chatOpen, userId]);
+
+  // 4️⃣ Setup SignalR connection for real-time messages
+  useEffect(() => {
+    if (!userId) return;
 
     const connect = new signalR.HubConnectionBuilder()
-      .withUrl(`https://localhost:7044/chatHub?role=user&userId=${userId}`)
+      .withUrl(`https://localhost:7044/chatHub?role=user&userId=${userId}`, {
+        accessTokenFactory: () => token
+      })
       .withAutomaticReconnect()
       .build();
 
-    connect.start().then(() => console.log("Connected to SignalR")).catch(console.error);
+    connect.start()
+      .then(() => console.log("Connected to SignalR"))
+      .catch(console.error);
 
+    // Receive new messages
     connect.on("ReceiveMessage", (senderId, msg) => {
-      setMessages((prev) => [...prev, { sender: senderId === userId ? 'user' : 'admin', text: msg, time: new Date().toLocaleTimeString() }]);
+      setMessages(prev => [
+        ...prev,
+        { sender: senderId === userId ? 'user' : 'admin', text: msg, time: new Date().toLocaleTimeString() }
+      ]);
     });
 
     setConnection(connect);
 
-    return () => {
-      connect.stop();
-    };
+    return () => connect.stop();
   }, [userId]);
 
-const sendMessage = () => {
-  if (connection && message.trim() !== "") {
-    connection
-      .invoke("SendMessage", userId, "admin", message)
+  // 5️⃣ Send message
+  const sendMessage = () => {
+    if (!connection || message.trim() === "") return;
+
+    connection.invoke("SendMessage", userId, "admin", message)
       .then(() => {
-        console.log("Message sent successfully ✅");
-        console.log(typeof(message));
-        
-        // message state update
-        setMessages((prev) => [
+        setMessages(prev => [
           ...prev,
           { sender: 'user', text: message, time: new Date().toLocaleTimeString() }
         ]);
         setMessage("");
       })
-      .catch((err) => {
-        console.error("Message failed ❌", err);
-      });
-  }
-};
-
+      .catch(err => console.error("Message failed ❌", err));
+  };
 
   return (
     <>
@@ -97,6 +122,7 @@ const sendMessage = () => {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef}></div>
           </div>
 
           <div className="p-4 border-t-2 border-green-200 bg-white">
