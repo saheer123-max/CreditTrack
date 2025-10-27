@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import Creatuser from './Creatuser';
 import { GlobalContext } from '../Context/GlobalContext';
-
+import * as signalR from "@microsoft/signalr";
 import { 
   BarChart3, Users, TrendingUp, DollarSign, Calendar, 
   Search, Filter, Download, Plus, Settings, Bell, 
@@ -12,12 +12,50 @@ import {
 
 export default function Admin() {
 
+
+
+     const { connection, setUser } = useContext(GlobalContext);
+
+const [searchTerm, setSearchTerm] = useState("");
+
+
+
+
+
+
+const [searchConnection, setSearchConnection] = useState(null);
+const [searchResults, setSearchResults] = useState([]);
+
+useEffect(() => {
+  const newSearchConnection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:7044/searchhub")
+    .withAutomaticReconnect()
+    .build();
+
+  newSearchConnection
+    .start()
+    .then(() => console.log("✅ Connected to SearchHub"))
+    .catch(err => console.error("❌ SearchHub connection error:", err));
+
+  newSearchConnection.on("ReceiveSearchResults", (results) => {
+    console.log("🔍 Received search results:", results);
+    setSearchResults(results || []);
+  });
+
+  setSearchConnection(newSearchConnection); // ✅ ഇനി define ചെയ്തിരിക്കുന്നു
+
+  return () => newSearchConnection.stop();
+}, []);
+
+
+
+  
   useEffect(() => {
   // example admin data
   setUser({ id: 26, role: "Admin" });
 }, []);
 
-   const { connection, setUser } = useContext(GlobalContext);
+
 
   const [timeFilter, setTimeFilter] = useState('month');
   const [activeTab, setActiveTab] = useState('overview');
@@ -78,6 +116,29 @@ export default function Admin() {
 
     fetchUsers();
   }, []);
+
+
+
+useEffect(() => {
+  const fetchSearch = async () => {
+    if (
+      searchConnection &&
+      searchConnection.state === "Connected" &&
+      searchTerm.trim() !== ""
+    ) {
+      console.log("🟢 Searching for:", searchTerm);
+      await searchConnection.invoke("SearchUsers", searchTerm);
+    } else if (searchTerm.trim() === "") {
+      setSearchResults([]); // input ഒഴിവായാൽ ഫലങ്ങൾ നീക്കം ചെയ്യാം
+    }
+  };
+
+  // ഡീലേ നൽകാൻ (user ടൈപ്പിംഗ് നിർത്തിയ ശേഷം മാത്രം backend call പോകാൻ)
+  const delayDebounce = setTimeout(fetchSearch, 500); // 0.5 സെക്കന്റ് ഡീലേ
+  return () => clearTimeout(delayDebounce);
+}, [searchTerm, searchConnection]);
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -167,20 +228,42 @@ export default function Admin() {
           <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-gray-900">Recent Accounts</h3>
-              <div className="flex space-x-2">
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                  <Search className="w-5 h-5 text-gray-600" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                  <Filter className="w-5 h-5 text-gray-600" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                  <Download className="w-5 h-5 text-gray-600" />
-                </button>
-              </div>
+           <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
+  <Search className="w-5 h-5 text-gray-500 mr-2" />
+  <input
+    type="text"
+    placeholder="Search users..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="bg-transparent outline-none text-sm text-gray-700 w-40 focus:w-60 transition-all"
+  />
+</div>
+
             </div>
 
             <div className="space-y-4">
+
+{/* ✅ Search Results Section */}
+{searchResults.length > 0 && (
+  <div className="mt-4 bg-white p-4 rounded-lg shadow">
+    <h3 className="text-lg font-bold text-gray-900 mb-2">Search Results</h3>
+    {searchResults.map((u, idx) => (
+      <div
+        key={idx}
+        onClick={() => navigate(`/Userprofile/${u.id}/${u.username}`)}
+        className="p-2 border-b border-gray-100 cursor-pointer hover:bg-gray-50 rounded"
+      >
+        {u.username || u.name}
+      </div>
+    ))}
+  </div>
+)}
+
+
+
+
+
+
               {loading && <p className="text-gray-500">Loading users...</p>}
               {error && <p className="text-red-500">{error}</p>}
               {!loading && !error && users.length === 0 && (
