@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext  } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import Creatuser from './Creatuser';
+import { GlobalContext } from '../Context/GlobalContext';
 
 import { 
   BarChart3, Users, TrendingUp, DollarSign, Calendar, 
@@ -10,6 +11,14 @@ import {
 } from 'lucide-react';
 
 export default function Admin() {
+
+  useEffect(() => {
+  // example admin data
+  setUser({ id: 26, role: "Admin" });
+}, []);
+
+   const { connection, setUser } = useContext(GlobalContext);
+
   const [timeFilter, setTimeFilter] = useState('month');
   const [activeTab, setActiveTab] = useState('overview');
   const [showCreateUser, setShowCreateUser] = useState(false);

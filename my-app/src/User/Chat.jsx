@@ -82,7 +82,7 @@ export default function Chat({ chatOpen, setChatOpen }) {
   const sendMessage = () => {
     if (!connection || message.trim() === "") return;
 
-    connection.invoke("SendMessage", userId, "admin", message)
+    connection.invoke("SendMessage", userId, "26", message)
       .then(() => {
         setMessages(prev => [
           ...prev,

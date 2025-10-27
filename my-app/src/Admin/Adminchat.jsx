@@ -1,58 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Send, User, Search } from 'lucide-react';
-import * as signalR from "@microsoft/signalr";
 import axios from 'axios';
+import { GlobalContext } from '../Context/GlobalContext';
 
 const AdminChat = () => {
-  const [connection, setConnection] = useState(null);
-  const [customers, setCustomers] = useState([]); // all chat users
+  const { connection } = useContext(GlobalContext);
+
+  const [userId, setUserId] = useState(null);
+  const [customers, setCustomers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState([]); // all messages
-  const [userMessages, setUserMessages] = useState([]); // messages for selected user
+  const [messages, setMessages] = useState([]);
+  const [userMessages, setUserMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Initialize SignalR connection
+  // 🟢 Load user ID from localStorage
   useEffect(() => {
-    const connect = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7044/chathub?role=admin&userId=admin") // no token
-      .withAutomaticReconnect()
-      .build();
+    const storedId = localStorage.getItem("userid");
+    if (storedId) {
+      console.log("🟢 User ID from localStorage:", storedId);
+      setUserId(storedId);
+    } else {
+      console.warn("⚠️ No user ID found in localStorage");
+    }
+  }, []);
 
-    const startConnection = async () => {
+  // 🟢 Fetch all chat users (API)
+  useEffect(() => {
+    const fetchUsers = async () => {
       try {
-        await connect.start();
-        console.log("Admin connected");
-
-        // Fetch all users via Axios (no auth)
-        try {
-          const response = await axios.get("https://localhost:7044/api/Chat/users");
-          const users = response.data || [];
-          setCustomers(
-            users.map(u => ({
-              id: String(u),
-              unread: 0,
-              lastMessage: "",
-              name: u // assuming API returns a string for username
-            }))
-          );
-        } catch (err) {
-          console.error("Error fetching users:", err);
-        }
+        const res = await axios.get("https://localhost:7044/api/Chat/users");
+        const data = res.data || [];
+        console.log("🟢 Users fetched from API:", data);
+        setCustomers(
+          data.map(u => ({
+            id: String(u),
+            name: `User ${u}`,
+            unread: 0,
+            lastMessage: ""
+          }))
+        );
       } catch (err) {
-        console.error("SignalR connection failed:", err);
+        console.error("Error fetching users:", err);
       }
     };
+    fetchUsers();
+  }, []);
 
-    startConnection();
+  // 🟢 SignalR receive message handler
+  useEffect(() => {
+    if (!connection) return;
 
-    connect.on("ReceiveMessage", (senderId, message) => {
+    const handleReceiveMessage = (senderId, message) => {
       const newMsg = {
         senderId,
-        receiverId: "admin",
-        sender: senderId === "admin" ? "admin" : "user",
+        receiverId: userId,
+        sender: senderId === userId ? "admin" : "user",
         text: message,
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString(),
       };
 
       setMessages(prev => [...prev, newMsg]);
@@ -69,40 +74,64 @@ const AdminChat = () => {
           return u;
         })
       );
-    });
+    };
 
-    setConnection(connect);
+    connection.on("ReceiveMessage", handleReceiveMessage);
+    return () => connection.off("ReceiveMessage", handleReceiveMessage);
+  }, [connection, userId, selectedUser]);
 
-    return () => connect.stop();
-  }, [selectedUser]);
+  // 🟢 When user selected, fetch chat history
+  const handleSelectUser = async (userItem) => {
+    try {
+      if (!userItem || !userItem.id) {
+        console.warn("⚠️ Invalid user selected:", userItem);
+        return;
+      }
 
-const handleSelectUser = async (user) => {
-  setSelectedUser(user);
-  setCustomers(prev => prev.map(u => u.id === user.id ? { ...u, unread: 0 } : u));
+      setSelectedUser(userItem);
+      setUserMessages([]);
+      setCustomers(prev =>
+        Array.isArray(prev)
+          ? prev.map(u => (u?.id === userItem.id ? { ...u, unread: 0 } : u))
+          : []
+      );
 
-  // 🟢 Fetch chat history from your API instead of SignalR
-  try {
-    const response = await axios.get(`https://localhost:7044/api/Chat/history/${user.id}`);
-    const history = response.data || [];
+      const res = await axios.get(`https://localhost:7044/api/Chat/history/${userItem.id}`);
+      const history = Array.isArray(res.data) ? res.data : [];
 
-    const formatted = history.map(msg => ({
-      senderId: msg.senderId,
-      receiverId: msg.receiverId,
-      sender: msg.senderId === "admin" ? "admin" : "user",
-      text: msg.message,
-      timestamp: new Date(msg.createdAt).toLocaleTimeString()
-    }));
+      console.log("📜 Raw history response:", history);
 
-    setMessages(prev => [
-      ...prev.filter(m => m.senderId !== user.id && m.receiverId !== user.id),
-      ...formatted
-    ]);
-  } catch (err) {
-    console.error("Error fetching history:", err);
-  }
-};
+      const formatted = history
+        .filter(msg => msg && msg.senderId && msg.receiverId)
+        .map(msg => ({
+          senderId: msg.senderId,
+          receiverId: msg.receiverId,
+          sender:
+            String(msg.senderId) === String(userId)
+              ? "admin"
+              : "user",
+          text: msg.message || "",
+          timestamp: msg.createdAt
+            ? new Date(msg.createdAt).toLocaleTimeString()
+            : new Date().toLocaleTimeString(),
+        }));
 
+      setMessages(prev => [
+        ...(Array.isArray(prev)
+          ? prev.filter(
+              m => m.senderId !== userItem.id && m.receiverId !== userItem.id
+            )
+          : []),
+        ...formatted,
+      ]);
 
+      console.log("✅ History loaded:", formatted);
+    } catch (err) {
+      console.error("Error fetching chat history:", err);
+    }
+  };
+
+  // 🟢 Filter current user messages
   useEffect(() => {
     if (selectedUser) {
       setUserMessages(messages.filter(
@@ -111,35 +140,44 @@ const handleSelectUser = async (user) => {
     }
   }, [messages, selectedUser]);
 
+  // 🟢 Send message
   const handleSendMessage = () => {
-    if (!connection || !selectedUser || inputMessage.trim() === '') return;
+    if (!connection || !selectedUser || !inputMessage.trim() || !userId) {
+      console.warn("⚠️ Missing connection / selectedUser / message / userId");
+      return;
+    }
 
-    connection.invoke("SendMessage", "admin", selectedUser.id, inputMessage)
+    connection.invoke("SendMessage", userId, selectedUser.id, inputMessage)
       .then(() => {
         const newMsg = {
-          senderId: "admin",
+          senderId: userId,
           receiverId: selectedUser.id,
           sender: "admin",
           text: inputMessage,
-          timestamp: new Date().toLocaleTimeString()
+          timestamp: new Date().toLocaleTimeString(),
         };
         setMessages(prev => [...prev, newMsg]);
         setInputMessage('');
       })
-      .catch(err => console.error("Send failed:", err));
+      .catch(err => console.error("❌ Send failed:", err));
   };
 
-  const filteredUsers = customers.filter(
-    u => u.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = customers.filter(u =>
+    u.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  useEffect(() => {
+    console.log("📩 Messages updated:", messages);
+  }, [messages]);
+
+  // 🟢 UI
   return (
     <div className="flex h-screen bg-white">
-      {/* Users List Sidebar */}
+      {/* Sidebar */}
       <div className="w-80 bg-green-50 border-r border-green-200 flex flex-col">
         <div className="p-4 bg-green-600 text-white">
           <h2 className="text-xl font-bold">Admin Chat</h2>
-          <p className="text-sm text-green-100">Manage user conversations</p>
+          <p className="text-sm text-green-100">Manage conversations</p>
         </div>
 
         <div className="p-3 bg-white border-b border-green-200">
@@ -156,31 +194,24 @@ const handleSelectUser = async (user) => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {filteredUsers.map(user => (
+          {filteredUsers.map(u => (
             <div
-              key={user.id}
-              onClick={() => handleSelectUser(user)}
-              className={`p-4 border-b border-green-100 cursor-pointer transition-colors ${selectedUser?.id === user.id ? 'bg-green-200' : 'hover:bg-green-100'}`}
+              key={u.id}
+              onClick={() => handleSelectUser(u)}
+              className={`p-4 border-b border-green-100 cursor-pointer transition-colors ${selectedUser?.id === u.id ? 'bg-green-200' : 'hover:bg-green-100'}`}
             >
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-semibold">
-                    {user.name.charAt(0)}
-                  </div>
-                  {user.online && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                  )}
+                <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-semibold">
+                  {u.name.charAt(0)}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-800 truncate">{user.name}</h3>
-                    {user.unread > 0 && (
-                      <span className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-                        {user.unread}
-                      </span>
+                    <h3 className="font-semibold text-gray-800 truncate">{u.name}</h3>
+                    {u.unread > 0 && (
+                      <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">{u.unread}</span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 truncate">{user.lastMessage}</p>
+                  <p className="text-sm text-gray-600 truncate">{u.lastMessage}</p>
                 </div>
               </div>
             </div>
@@ -188,21 +219,16 @@ const handleSelectUser = async (user) => {
         </div>
       </div>
 
-      {/* Chat Area */}
+      {/* Chat area */}
       <div className="flex-1 flex flex-col">
         {selectedUser ? (
           <>
             <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
               {userMessages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`mb-4 flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-xs lg:max-w-md ${msg.sender === 'admin' ? 'order-2' : 'order-1'}`}>
-                    <div className={`px-4 py-2 rounded-lg ${msg.sender === 'admin' ? 'bg-green-600 text-white' : 'bg-white text-gray-800 border border-green-200'}`}>
-                      <p>{msg.text}</p>
-                    </div>
-                    <p className={`text-xs text-gray-500 mt-1 ${msg.sender === 'admin' ? 'text-right' : 'text-left'}`}>
+                <div key={idx} className={`mb-3 flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-xs lg:max-w-md ${msg.sender === 'admin' ? 'bg-green-600 text-white' : 'bg-white border border-green-200'} px-4 py-2 rounded-lg`}>
+                    <p>{msg.text}</p>
+                    <p className={`text-xs mt-1 text-right ${msg.sender === 'admin' ? 'text-green-100' : 'text-gray-400'}`}>
                       {msg.timestamp}
                     </p>
                   </div>
@@ -216,13 +242,13 @@ const handleSelectUser = async (user) => {
                   type="text"
                   value={inputMessage}
                   onChange={e => setInputMessage(e.target.value)}
-                  onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type your message..."
-                  className="flex-1 px-4 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+                  placeholder="Type message..."
+                  className="flex-1 px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
                 >
                   <Send size={18} />
                   Send
@@ -235,7 +261,7 @@ const handleSelectUser = async (user) => {
             <div className="text-center">
               <User size={64} className="mx-auto text-green-600 mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">Select a User</h3>
-              <p className="text-gray-500">Choose a user from the list to start chatting</p>
+              <p className="text-gray-500">Choose a user to start chatting</p>
             </div>
           </div>
         )}
