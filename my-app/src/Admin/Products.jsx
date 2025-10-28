@@ -25,6 +25,8 @@ export default function Products() {
     try {
       const res = await axios.get("https://localhost:7044/api/Product/catogory");
       setProducts(res.data.data || []);
+      console.log(res.data.data);
+      
     } catch (err) {
       console.error(err);
       setError(err.message || "Error fetching products");
@@ -56,6 +58,7 @@ export default function Products() {
     try {
       await axios.delete(`https://localhost:7044/api/Product/${id}`);
       setProducts((prev) => prev.filter((p) => p.id !== id));
+      alert("succesfull delete")
     } catch (err) {
       console.error(err);
       alert("Failed to delete product");
@@ -63,44 +66,43 @@ export default function Products() {
   };
 
   // ✅ handleSave with FormData for file upload
-  const handleSave = async () => {
-    if (!formData.name || !formData.price || !formData.categoryId ) {
-      alert("Please fill all required fields");
-      return;
+const handleSave = async () => {
+  if (!formData.name || !formData.price || !formData.categoryId) {
+    alert("Please fill all required fields");
+    return;
+  }
+
+  try {
+    const fd = new FormData();
+    fd.append("Name", formData.name);
+    fd.append("Price", formData.price);
+    fd.append("CategoryId", formData.categoryId);
+    if (formData.image) fd.append("Image", formData.image);
+
+    if (editingId) {
+      await axios.put(`https://localhost:7044/api/Product/${editingId}`, fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      alert("✅ Product updated!");
+    } else {
+      await axios.post("https://localhost:7044/api/Product", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      alert("✅ Product added!");
     }
 
-    try {
-      const fd = new FormData();
-      fd.append("Name", formData.name);
-      fd.append("Price", formData.price);
-      fd.append("CategoryId", formData.categoryId);
-     
-      if (formData.image) fd.append("Image", formData.image);
+    setShowModal(false);
+    setFormData({ name: "", price: "", categoryId: "", image: null });
 
-      let res;
-      if (editingId) {
-        res = await axios.put(`https://localhost:7044/api/Product/${editingId}`, fd, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        setProducts((prev) =>
-          prev.map((p) => (p.id === editingId ? { ...p, ...res.data.data } : p))
-        );
-        alert("✅ Product updated!");
-      } else {
-        res = await axios.post("https://localhost:7044/api/Product", fd, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        setProducts((prev) => [...prev, res.data.data]);
-        alert("✅ Product added!");
-      }
+    // 🔁 Re-fetch to show latest data instantly
+    fetchProducts();
 
-      setShowModal(false);
-      setFormData({ name: "", price: "", categoryId: "", image: null});
-    } catch (err) {
-      console.error("Error saving product:", err);
-      alert("❌ Failed to save product");
-    }
-  };
+  } catch (err) {
+    console.error("Error saving product:", err);
+    alert("❌ Failed to save product");
+  }
+};
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -131,37 +133,77 @@ export default function Products() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 border-green-600">
-          <table className="w-full">
-            <thead className="bg-green-600 text-white">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Product Name</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Price</th>
-               
-                <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-green-100">
-              {products.map((product, idx) => (
-                <tr key={product.id} className={idx % 2 === 0 ? "bg-white hover:bg-green-50" : "bg-green-50 hover:bg-green-100"}>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800">{product.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{product.category?.name || "N/A"}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-green-600">${product.price?.toFixed(2)}</td>
-                 
-                  <td className="px-6 py-4 text-sm flex gap-2">
-                    <button onClick={() => handleEdit(product)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded flex items-center gap-1">
-                      <Edit2 size={16} /> Edit
-                    </button>
-                    <button onClick={() => handleDelete(product.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex items-center gap-1">
-                      <Trash2 size={16} /> Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+ <div className="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 border-green-600">
+  <table className="w-full">
+    <thead className="bg-green-600 text-white">
+      <tr>
+        <th className="px-6 py-4 text-left text-sm font-semibold">Product Name</th>
+        <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
+        <th className="px-6 py-4 text-left text-sm font-semibold">Price</th>
+        <th className="px-6 py-4 text-left text-sm font-semibold">Image</th>
+        <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody className="divide-y divide-green-100">
+      {products.map((product, idx) => (
+        <tr
+          key={product.id}
+          className={
+            idx % 2 === 0
+              ? "bg-white hover:bg-green-50"
+              : "bg-green-50 hover:bg-green-100"
+          }
+        >
+          {/* ✅ Product Name */}
+          <td className="px-6 py-4 text-sm font-medium text-gray-800">
+            {product.name}
+          </td>
+
+          {/* ✅ Category */}
+          <td className="px-6 py-4 text-sm text-gray-600">
+            {product.category?.name || "N/A"}
+          </td>
+
+          {/* ✅ Price */}
+          <td className="px-6 py-4 text-sm font-semibold text-green-600">
+            ${product.price?.toFixed(2)}
+          </td>
+
+          {/* ✅ Image */}
+          <td className="px-6 py-4">
+            {product.imageUrl ? (
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className="w-13 h-11 object-cover rounded-md border"
+              />
+            ) : (
+              <span className="text-gray-400 italic">No Image</span>
+            )}
+          </td>
+
+          {/* ✅ Actions */}
+          <td className="px-6 py-4 text-sm flex gap-2">
+            <button
+              onClick={() => handleEdit(product)}
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded flex items-center gap-1"
+            >
+              <Edit2 size={16} /> Edit
+            </button>
+            <button
+              onClick={() => handleDelete(product.id)}
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex items-center gap-1"
+            >
+              <Trash2 size={16} /> Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
         {/* Modal */}
         {showModal && (

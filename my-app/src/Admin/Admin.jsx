@@ -12,7 +12,7 @@ import {
 
 export default function Admin() {
 
-
+ const [active, setActive] = useState("Customer");
 
      const { connection, setUser } = useContext(GlobalContext);
 
@@ -228,7 +228,31 @@ useEffect(() => {
           <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-gray-900">Recent Accounts</h3>
+
+ <div className="flex items-center bg-gray-100 rounded-full p-1 w-64">
+      {/* Customer */}
+      <button
+        onClick={() => setActive("Customer")}
+        className={`flex-1 text-center py-2 rounded-full text-sm font-medium transition-all duration-300 
+          ${active === "Customer" ? "bg-white text-green-600 shadow" : "text-gray-500"}`}
+      >
+        Customer
+      </button>
+
+      {/* Supplier */}
+      <button
+        onClick={() => setActive("Supplier")}
+        className={`flex-1 text-center py-2 rounded-full text-sm font-medium transition-all duration-300 
+          ${active === "Supplier" ? "bg-white text-green-600 shadow" : "text-gray-500"}`}
+      >
+        Supplier
+      </button>
+    </div>
+
+
            <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
+
+            
   <Search className="w-5 h-5 text-gray-500 mr-2" />
   <input
     type="text"
@@ -281,7 +305,7 @@ useEffect(() => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">{user.username}</h4>
-                      <span className="text-xs text-gray-500">Registered User</span>
+                      <span className="text-xs text-gray-500">{user.role}</span>
                     </div>
                   </div>
                 </div>
