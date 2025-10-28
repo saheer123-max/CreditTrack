@@ -58,11 +58,11 @@ const groupedProducts = (product || []) // product null ആണെങ്കിൽ
 
   
 
-  const announcements = [
-    { id: 1, title: 'New Products Added!', desc: 'Check out our latest organic collection', date: 'Oct 22' },
-    { id: 2, title: 'Flash Sale This Weekend', desc: '20% off on all herbal products', date: 'Oct 21' },
-    { id: 3, title: 'Shipping Update', desc: 'Free shipping on orders above $50', date: 'Oct 20' }
-  ];
+  // const announcements = [
+  //   { id: 1, title: 'New Products Added!', desc: 'Check out our latest organic collection', date: 'Oct 22' },
+  //   { id: 2, title: 'Flash Sale This Weekend', desc: '20% off on all herbal products', date: 'Oct 21' },
+  //   { id: 3, title: 'Shipping Update', desc: 'Free shipping on orders above $50', date: 'Oct 20' }
+  // ];
 
   const sendMessage = () => {
     if (message.trim()) {
@@ -125,17 +125,13 @@ const groupedProducts = (product || []) // product null ആണെങ്കിൽ
 </button>
 
 
-          <button
-            onClick={() => setActiveTab('announcements')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all ${
-              activeTab === 'announcements'
-                ? 'bg-green-600 text-white'
-                : 'text-green-700 hover:bg-green-50'
-            }`}
-          >
-            <Bell className="w-5 h-5" />
-            Announcements
-          </button>
+       <button
+  onClick={() => navigate("/UserAnnounce")}
+  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all text-green-700 hover:bg-green-50"
+>
+  <Bell className="w-5 h-5" />
+  Announcements
+</button>
         </div>
 
         {/* Content Area */}
@@ -207,7 +203,10 @@ const groupedProducts = (product || []) // product null ആണെങ്കിൽ
               <h2 className="text-2xl font-bold text-green-700 mb-6">Announcements</h2>
               <div className="space-y-3">
                 {announcements.map(announcement => (
-                  <div key={announcement.id} className="border-2 border-green-100 rounded-lg p-4 hover:border-green-300 transition-all cursor-pointer group">
+                  <div key={announcement.id}
+                  
+                  onClick={() => navigate("/announcement")}
+                  className="border-2 border-green-100 rounded-lg p-4 hover:border-green-300 transition-all cursor-pointer group">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-semibold text-green-800 mb-1">{announcement.title}</h3>

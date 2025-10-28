@@ -323,6 +323,19 @@ useEffect(() => {
 
         {/* Floating Action Buttons */}
         <div className="fixed bottom-8 left-8 flex flex-col gap-4">
+           
+
+             <button
+            onClick={() => navigate('/Announcement')}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full shadow-lg transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="font-medium">Announcement</span>
+          </button>  
+
+
+
+
           {/* Products Button */}
           <button
             onClick={() => navigate('/Products')}
