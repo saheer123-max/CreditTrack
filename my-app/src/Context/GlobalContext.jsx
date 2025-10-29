@@ -51,8 +51,9 @@ export const GlobalProvider = ({ children }) => {
   // 🗂️ പഴയ announcements DB-ൽ നിന്ന് എടുത്ത് കാണിക്കുക
   const fetchAnnouncements = async () => {
     try {
-      const res = await axios.get("https://localhost:7044/api/announcement");
+      const res = await axios.get("https://localhost:7044/api/Announcement");
       setAnnouncements(res.data);
+      console.log("📢 API Response:", res.data);
     } catch (err) {
       console.error("❌ Fetch Announcements Error:", err);
     }
