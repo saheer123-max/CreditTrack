@@ -12,7 +12,14 @@ import {
 
 export default function Admin() {
 
+    const [totals, setTotals] = useState({});
+  const [userCounts, setUserCounts] = useState({});
  const [active, setActive] = useState("Customer");
+
+
+   const [customers, setCustomers] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+
 
      const { connection, setUser } = useContext(GlobalContext);
 
@@ -48,6 +55,37 @@ useEffect(() => {
 }, []);
 
 
+  const api = axios.create({
+    baseURL: "https://localhost:7044/api",
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // ✅ Call both APIs simultaneously
+        const [totalsRes, userCountsRes] = await Promise.all([
+          api.get("/User/totals"),
+          api.get("/User/user-counts"),
+
+
+        ]);
+
+        setTotals(totalsRes.data);
+        setUserCounts(userCountsRes.data);
+
+
+        console.log("🔹 Totals Data:", totalsRes.data);
+        console.log("🔹 User Counts Data:", userCountsRes.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+
 
   
   useEffect(() => {
@@ -57,8 +95,33 @@ useEffect(() => {
 
 
 
-  const [timeFilter, setTimeFilter] = useState('month');
-  const [activeTab, setActiveTab] = useState('overview');
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const [customersRes, suppliersRes] = await Promise.all([
+        api.get("/User/customers"),
+        api.get("/User/suppliers"),
+      ]);
+
+      setCustomers(customersRes.data);
+      setSuppliers(suppliersRes.data);
+
+      // ✅ ആദ്യം എല്ലായ്പ്പോഴും customers കാണിക്കാം (default active Customer)
+      setUsers(customersRes.data);
+
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUsers();
+}, []);
+
+
+
+
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -185,7 +248,7 @@ useEffect(() => {
               </div>
               <span className="text-xs text-gray-500">+12% this month</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{stats.totalCustomers}</h3>
+            <h3 className="text-2xl font-bold text-gray-900"> {userCounts.totalCustomers}</h3>
             <p className="text-sm text-gray-600">Total Customers</p>
           </div>
 
@@ -196,7 +259,7 @@ useEffect(() => {
               </div>
               <span className="text-xs text-gray-500">+8% this month</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">{stats.totalSuppliers}</h3>
+            <h3 className="text-2xl font-bold text-gray-900">    {userCounts.totalSuppliers}</h3>
             <p className="text-sm text-gray-600">Total Suppliers</p>
           </div>
 
@@ -207,7 +270,7 @@ useEffect(() => {
               </div>
               <span className="text-xs text-green-600">↑ Receivable</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">₹{(stats.totalReceivable / 1000).toFixed(0)}K</h3>
+            <h3 className="text-2xl font-bold text-gray-900">₹{totals.totalReceived }</h3>
             <p className="text-sm text-gray-600">Total Receivable</p>
           </div>
 
@@ -218,7 +281,7 @@ useEffect(() => {
               </div>
               <span className="text-xs text-red-600">↓ Payable</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">₹{(stats.totalPayable / 1000).toFixed(0)}K</h3>
+            <h3 className="text-2xl font-bold text-gray-900">₹{totals.totalGiven}</h3>
             <p className="text-sm text-gray-600">Total Payable</p>
           </div>
         </div>
@@ -231,22 +294,28 @@ useEffect(() => {
 
  <div className="flex items-center bg-gray-100 rounded-full p-1 w-64">
       {/* Customer */}
-      <button
-        onClick={() => setActive("Customer")}
-        className={`flex-1 text-center py-2 rounded-full text-sm font-medium transition-all duration-300 
-          ${active === "Customer" ? "bg-white text-green-600 shadow" : "text-gray-500"}`}
-      >
-        Customer
-      </button>
+   <button
+  onClick={() => {
+    setActive("Customer");
+    setUsers(customers); // ✅ customers മാത്രം കാണിക്കാം
+  }}
+  className={`flex-1 text-center py-2 rounded-full text-sm font-medium transition-all duration-300 
+    ${active === "Customer" ? "bg-white text-green-600 shadow" : "text-gray-500"}`}
+>
+  Customer
+</button>
 
       {/* Supplier */}
-      <button
-        onClick={() => setActive("Supplier")}
-        className={`flex-1 text-center py-2 rounded-full text-sm font-medium transition-all duration-300 
-          ${active === "Supplier" ? "bg-white text-green-600 shadow" : "text-gray-500"}`}
-      >
-        Supplier
-      </button>
+   <button
+  onClick={() => {
+    setActive("Supplier");
+    setUsers(suppliers); // ✅ suppliers മാത്രം കാണിക്കാം
+  }}
+  className={`flex-1 text-center py-2 rounded-full text-sm font-medium transition-all duration-300 
+    ${active === "Supplier" ? "bg-white text-green-600 shadow" : "text-gray-500"}`}
+>
+  Supplier
+</button>
     </div>
 
 

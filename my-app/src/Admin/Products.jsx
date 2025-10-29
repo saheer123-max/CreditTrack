@@ -21,19 +21,19 @@ export default function Products() {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get("https://localhost:7044/api/Product/catogory");
-      setProducts(res.data.data || []);
-      console.log(res.data.data);
-      
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Error fetching products");
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchProducts = async () => {
+  try {
+    const res = await axios.get("https://localhost:7044/api/Product");
+    setProducts(res.data || []); // ✅ data.data ഒഴിവാക്കുക
+    console.log(res.data);
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "Error fetching products");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleAdd = () => {
     setEditingId(null);
@@ -116,6 +116,35 @@ const handleSave = async () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+
+
+
+
+
+
+
+
+
+
+const getCategoryName = (id) => {
+  switch (id) {
+    case 1:
+      return "Beverage";
+    case 2:
+      return "Chocolate";
+    case 3:
+      return "Drinks";
+    default:
+      return "Unknown";
+  }
+};
+
+
+
+
+
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white p-8">
       <div className="max-w-6xl mx-auto">
@@ -145,62 +174,71 @@ const handleSave = async () => {
       </tr>
     </thead>
 
-    <tbody className="divide-y divide-green-100">
-      {products.map((product, idx) => (
-        <tr
-          key={product.id}
-          className={
-            idx % 2 === 0
-              ? "bg-white hover:bg-green-50"
-              : "bg-green-50 hover:bg-green-100"
-          }
-        >
-          {/* ✅ Product Name */}
-          <td className="px-6 py-4 text-sm font-medium text-gray-800">
-            {product.name}
-          </td>
+   <tbody className="divide-y divide-green-100">
+  {products.length === 0 ? (
+    <tr>
+      <td colSpan="5" className="text-center py-6 text-gray-500">
+        No products found
+      </td>
+    </tr>
+  ) : (
+    products.map((product, idx) => (
+      <tr
+        key={product.id}
+        className={
+          idx % 2 === 0
+            ? "bg-white hover:bg-green-50"
+            : "bg-green-50 hover:bg-green-100"
+        }
+      >
+        {/* ✅ Product Name */}
+        <td className="px-6 py-4 text-sm font-medium text-gray-800">
+          {product.name}
+        </td>
 
-          {/* ✅ Category */}
-          <td className="px-6 py-4 text-sm text-gray-600">
-            {product.category?.name || "N/A"}
-          </td>
+        {/* ✅ Category */}
+        <td className="px-6 py-4 text-sm text-gray-600">
+          {getCategoryName(product.categoryId)}
+        </td>
 
-          {/* ✅ Price */}
-          <td className="px-6 py-4 text-sm font-semibold text-green-600">
-            ${product.price?.toFixed(2)}
-          </td>
+        {/* ✅ Price */}
+        <td className="px-6 py-4 text-sm font-semibold text-green-600">
+          ${Number(product.price).toFixed(2)}
+        </td>
 
-          {/* ✅ Image */}
-          <td className="px-6 py-4">
-            {product.imageUrl ? (
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-13 h-11 object-cover rounded-md border"
-              />
-            ) : (
-              <span className="text-gray-400 italic">No Image</span>
-            )}
-          </td>
+        {/* ✅ Image */}
+        <td className="px-6 py-4">
+          {product.imageUrl ? (
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className="w-14 h-12 object-cover rounded-md border"
+            />
+          ) : (
+            <span className="text-gray-400 italic">No Image</span>
+          )}
+        </td>
 
-          {/* ✅ Actions */}
-          <td className="px-6 py-4 text-sm flex gap-2">
-            <button
-              onClick={() => handleEdit(product)}
-              className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded flex items-center gap-1"
-            >
-              <Edit2 size={16} /> Edit
-            </button>
-            <button
-              onClick={() => handleDelete(product.id)}
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex items-center gap-1"
-            >
-              <Trash2 size={16} /> Delete
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
+        {/* ✅ Actions */}
+        <td className="px-6 py-4 text-sm flex gap-2">
+          <button
+            onClick={() => handleEdit(product)}
+            className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded flex items-center gap-1"
+          >
+            <Edit2 size={16} /> Edit
+          </button>
+          <button
+            onClick={() => handleDelete(product.id)}
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex items-center gap-1"
+          >
+            <Trash2 size={16} /> Delete
+          </button>
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
+
   </table>
 </div>
 
