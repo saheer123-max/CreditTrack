@@ -126,6 +126,8 @@ useEffect(() => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [topGivers, setTopGivers] = useState([]);
+const [topReceivers, setTopReceivers] = useState([]);
 
   const navigate = useNavigate();
 
@@ -158,6 +160,24 @@ useEffect(() => {
   const handleClickS = () => {
     setShowCreateUser(true);
   };
+
+  useEffect(() => {
+  const fetchTopUsers = async () => {
+    try {
+      const response = await axios.get("https://localhost:7044/api/CreditTransaction/top-users");
+      if (response.data.success) {
+        setTopGivers(response.data.data.topGivers || []);
+        setTopReceivers(response.data.data.topReceivers || []);
+        console.log("✅ Top users fetched:", response.data.data);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching top users:", error);
+    }
+  };
+
+  fetchTopUsers();
+}, []);
+
 
   // ✅ Fetch users from API
   useEffect(() => {
@@ -385,32 +405,42 @@ useEffect(() => {
           {/* Top Lists */}
           <div className="space-y-6">
             {/* Top Debtors */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Top Debtors</h3>
-              {topDebtors.map((debtor, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg mb-3">
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm">{debtor.name}</p>
-                    <p className="text-xs text-gray-500">{debtor.days} days overdue</p>
-                  </div>
-                  <p className="font-bold text-orange-600">₹{(debtor.amount / 1000).toFixed(1)}K</p>
-                </div>
-              ))}
-            </div>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+  <h3 className="text-lg font-bold text-gray-900 mb-4">Top Givers</h3>
+  {topGivers.length > 0 ? (
+    topGivers.map((giver, idx) => (
+      <div key={idx} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg mb-3">
+        <div>
+          <p className="font-medium text-gray-900 text-sm">{giver.userName}</p>
+         
+        </div>
+        <p className="font-bold text-orange-600">₹{giver.totalAmount}</p>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-500 text-sm">No giver data available.</p>
+  )}
+</div>
+
 
             {/* Top Creditors */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Top Creditors</h3>
-              {topCreditors.map((creditor, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-red-50 rounded-lg mb-3">
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm">{creditor.name}</p>
-                    <p className="text-xs text-gray-500">{creditor.days} days pending</p>
-                  </div>
-                  <p className="font-bold text-red-600">₹{(creditor.amount / 1000).toFixed(1)}K</p>
-                </div>
-              ))}
-            </div>
+       <div className="bg-white rounded-xl shadow-sm p-6">
+  <h3 className="text-lg font-bold text-gray-900 mb-4">Top Receivers</h3>
+  {topReceivers.length > 0 ? (
+    topReceivers.map((receiver, idx) => (
+      <div key={idx} className="flex items-center justify-between p-3 bg-green-50 rounded-lg mb-3">
+        <div>
+          <p className="font-medium text-gray-900 text-sm">{receiver.userName}</p>
+         
+        </div>
+        <p className="font-bold text-green-600">₹{receiver.totalAmount}</p>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-500 text-sm">No receiver data available.</p>
+  )}
+</div>
+
           </div>
         </div>
 

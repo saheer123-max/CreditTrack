@@ -52,18 +52,33 @@ const fetchProducts = async () => {
     });
     setShowModal(true);
   };
+const handleDelete = async (id) => {
+  if (!confirm("Are you sure you want to delete this product?")) return;
 
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-    try {
-      await axios.delete(`https://localhost:7044/api/Product/${id}`);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      alert("succesfull delete")
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete product");
+  try {
+    const token = localStorage.getItem("token"); // 🟢 Login സമയത്ത് save ചെയ്ത JWT
+
+    await axios.delete(`https://localhost:7044/api/Product/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}` // 🔐 Backend-ന് token അയക്കുന്നു
+      }
+    });
+
+    // ✅ UI update ചെയ്യുക
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+    alert("✅ Product deleted successfully");
+  } catch (err) {
+    console.error(err);
+    if (err.response?.status === 401) {
+      alert("❌ Unauthorized! Please login again.");
+    } else if (err.response?.status === 403) {
+      alert("🚫 Access Denied! Only Admin can delete.");
+    } else {
+      alert("❌ Failed to delete product");
     }
-  };
+  }
+};
+
 
   // ✅ handleSave with FormData for file upload
 const handleSave = async () => {

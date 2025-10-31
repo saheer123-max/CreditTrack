@@ -33,9 +33,9 @@ export default function Products() {
             {grouped[category].map(product => (
               <div key={product.id} className="w-48 border rounded-lg p-4 hover:shadow-lg">
                 <img src={product.imageUrl || "https://via.placeholder.com/150"} alt={product.name} className="h-32 w-full object-cover rounded-md mb-2" />
-                <h3 className="font-semibold text-green-800">{product.name}</h3>
-                <p className="font-bold text-green-600">${product.price}</p>
-                <button className="w-full bg-green-600 text-white py-2 rounded-lg mt-2 hover:bg-green-700">Add to Cart</button>
+                <h3 className="font-semibold text-green-800  pl-[50px]">{product.name}</h3>
+                <p className="font-bold text-green-600 pl-[50px]">${product.price}</p>
+
               </div>
             ))}
           </div>
