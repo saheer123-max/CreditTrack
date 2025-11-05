@@ -424,7 +424,7 @@ useEffect(() => {
 
 
             {/* Top Creditors */}
-       <div className="bg-white ....rounded-xl shadow-sm p-6">
+       <div className="bg-white rounded-xl shadow-sm p-6">
   <h3 className="text-lg font-bold text-gray-900 mb-4">Top Receivers</h3>
   {topReceivers.length > 0 ? (
     topReceivers.map((receiver, idx) => (
