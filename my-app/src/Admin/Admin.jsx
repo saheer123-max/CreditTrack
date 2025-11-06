@@ -433,7 +433,7 @@ useEffect(() => {
           <p className="font-medium text-gray-900 text-sm">{receiver.userName}</p>
          
         </div>
-        <p className="font-bold dddtext-green-600">₹{receiver.totalAmount}</p>
+        <p className="font-bold text-green-600">₹{receiver.totalAmount}</p>
       </div>
     ))
   ) : (
