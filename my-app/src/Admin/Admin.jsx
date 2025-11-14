@@ -437,7 +437,7 @@ useEffect(() => {
       </div>
     ))
   ) : (
-    <p className="text-gray-500 text-sm">No receiver data available.</p>
+    <p className="text-gray-500oo text-sm">No receiver data available.</p>
   )}
 </div>
 
