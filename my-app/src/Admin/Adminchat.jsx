@@ -14,7 +14,7 @@ const AdminChat = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 🟢 Load admin user ID from localStorage
+
   useEffect(() => {
     const storedId = localStorage.getItem("userid");
     if (storedId) {
@@ -25,7 +25,7 @@ const AdminChat = () => {
     }
   }, []);
 
-  // 🟢 Fetch all chat users from API
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -47,7 +47,7 @@ const AdminChat = () => {
     fetchUsers();
   }, []);
 
-  // 🟢 SignalR Receive Message Handler
+
   useEffect(() => {
     if (!chatConnection) {
       console.warn("⚠️ chatConnection not ready");
@@ -91,7 +91,7 @@ const AdminChat = () => {
     };
   }, [chatConnection, userId, selectedUser]);
 
-  // 🟢 Fetch Chat History When User Selected
+
   const handleSelectUser = async (userItem) => {
     try {
       if (!userItem || !userItem.id) {
@@ -102,7 +102,7 @@ const AdminChat = () => {
       setSelectedUser(userItem);
       setUserMessages([]);
 
-      // Reset unread count
+  
       setCustomers((prev) =>
         prev.map((u) =>
           u.id === userItem.id ? { ...u, unread: 0 } : u
@@ -140,7 +140,7 @@ const AdminChat = () => {
     }
   };
 
-  // 🟢 Filter messages of selected user
+
   useEffect(() => {
     if (selectedUser) {
       setUserMessages(
@@ -153,7 +153,7 @@ const AdminChat = () => {
     }
   }, [messages, selectedUser]);
 
-  // 🟢 Send message
+ 
   const handleSendMessage = () => {
     if (!chatConnection || !selectedUser || !inputMessage.trim() || !userId) {
       console.warn("⚠️ Missing connection / selectedUser / message / userId");
@@ -180,7 +180,7 @@ const AdminChat = () => {
     u.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🟢 UI
+
   return (
     <div className="flex h-screen bg-white">
       {/* Sidebar */}

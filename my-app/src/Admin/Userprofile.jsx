@@ -18,7 +18,7 @@ export default function Userprofile() {
     baseURL: 'https://localhost:7044/api/CreditTransaction',
   });
 
-  // ✅ Fetch user balance
+
   useEffect(() => {
     const fetchBalance = async () => {
       try {
@@ -31,15 +31,14 @@ export default function Userprofile() {
     fetchBalance();
   }, [id]);
 
-  // ✅ Fetch user transactions (previous records)
+
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const res = await api.get(`/user/${id}`);
         console.log('✅ Transactions fetched:', res.data);
 
-        // Assuming API returns something like:
-        // { success: true, message: "Fetched", data: [ { amount, type, transactionDate, description } ] }
+    
         setTransactions(res.data?.data ?? []);
       } catch (err) {
         console.error('❌ Error fetching transactions:', err);
@@ -48,13 +47,13 @@ export default function Userprofile() {
     fetchTransactions();
   }, [id]);
 
-  // Handle Given / Received button click
+
   const handleClick = (type) => {
     setTransactionType(type);
     setShowInput(true);
   };
 
-  // Handle form submit
+
   const handleSubmit = async () => {
     if (!amount || !description) return;
 
@@ -70,7 +69,7 @@ export default function Userprofile() {
 
       console.log('✅ Transaction saved:', response.data);
 
-      // Re-fetch transactions & balance after submitting
+
       const [balanceRes, transactionsRes] = await Promise.all([
         api.get(`/balance/${id}`),
         api.get(`/user/${id}`),

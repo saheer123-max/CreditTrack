@@ -10,7 +10,7 @@ export const GlobalProvider = ({ children }) => {
   const [announcementConnection, setAnnouncementConnection] = useState(null); // 📢 Announcement hub
   const [announcements, setAnnouncements] = useState([]); // 📜 Announcement list
 
-  // ======================= 📢 ANNOUNCEMENT HUB =======================
+
   useEffect(() => {
     const connectAnnouncementHub = async () => {
       try {
@@ -48,7 +48,7 @@ export const GlobalProvider = ({ children }) => {
     };
   }, []);
 
-  // 🗂️ പഴയ announcements DB-ൽ നിന്ന് എടുത്ത് കാണിക്കുക
+
   const fetchAnnouncements = async () => {
     try {
       const res = await axios.get("https://localhost:7044/api/Announcement");
@@ -63,7 +63,7 @@ export const GlobalProvider = ({ children }) => {
     fetchAnnouncements();
   }, []);
 
-  // ======================= 💬 CHAT HUB =======================
+
   useEffect(() => {
     if (!user) return; // user ഇല്ലെങ്കിൽ connect വേണ്ട
     if (chatConnection?.state === signalR.HubConnectionState.Connected) return; // duplicate avoid
@@ -111,7 +111,7 @@ export const GlobalProvider = ({ children }) => {
     };
   }, [user]);
 
-  // ======================= 🌍 CONTEXT PROVIDER =======================
+
   return (
     <GlobalContext.Provider
       value={{

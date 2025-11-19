@@ -12,7 +12,7 @@ export default function Chat({ chatOpen, setChatOpen }) {
   const userIdRef = useRef(null);
   const token = localStorage.getItem("token");
 
-  // 1️⃣ Get userId from localStorage
+
   useEffect(() => {
     const id = localStorage.getItem("userid");
     if (id) {
@@ -21,12 +21,12 @@ export default function Chat({ chatOpen, setChatOpen }) {
     }
   }, []);
 
-  // 2️⃣ Scroll to bottom on new messages
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 3️⃣ Fetch user history when chat opens
+
   useEffect(() => {
     if (!chatOpen || !userId) return;
 
@@ -50,7 +50,7 @@ export default function Chat({ chatOpen, setChatOpen }) {
     fetchHistory();
   }, [chatOpen, userId]);
 
-  // 4️⃣ Setup SignalR connection for real-time messages
+
   useEffect(() => {
     if (!userId) return;
 
@@ -65,7 +65,7 @@ export default function Chat({ chatOpen, setChatOpen }) {
       .then(() => console.log("Connected to SignalR"))
       .catch(console.error);
 
-    // Receive new messages
+
     connect.on("ReceiveMessage", (senderId, msg) => {
       setMessages(prev => [
         ...prev,
@@ -78,7 +78,7 @@ export default function Chat({ chatOpen, setChatOpen }) {
     return () => connect.stop();
   }, [userId]);
 
-  // 5️⃣ Send message
+
   const sendMessage = () => {
     if (!connection || message.trim() === "") return;
 

@@ -5,7 +5,7 @@ import { Megaphone } from "lucide-react";
 const UserAnnounce= () => {
   const { announcements } = useContext(GlobalContext);
   console.log(announcements);
-  console.log("✅ UserAnnounce component loaded");
+  console.log(" UserAnnounce component loaded");
   
   return (
     <div className="p-6 bg-white min-h-screen">

@@ -49,7 +49,7 @@ useEffect(() => {
     setSearchResults(results || []);
   });
 
-  setSearchConnection(newSearchConnection); // ✅ ഇനി define ചെയ്തിരിക്കുന്നു
+  setSearchConnection(newSearchConnection); 
 
   return () => newSearchConnection.stop();
 }, []);
@@ -62,7 +62,7 @@ useEffect(() => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ✅ Call both APIs simultaneously
+   
         const [totalsRes, userCountsRes] = await Promise.all([
           api.get("/User/totals"),
           api.get("/User/user-counts"),
@@ -89,7 +89,7 @@ useEffect(() => {
 
   
   useEffect(() => {
-  // example admin data
+
   setUser({ id: 26, role: "Admin" });
 }, []);
 
@@ -106,7 +106,7 @@ useEffect(() => {
       setCustomers(customersRes.data);
       setSuppliers(suppliersRes.data);
 
-      // ✅ ആദ്യം എല്ലായ്പ്പോഴും customers കാണിക്കാം (default active Customer)
+    
       setUsers(customersRes.data);
 
     } catch (error) {
@@ -131,7 +131,7 @@ const [topReceivers, setTopReceivers] = useState([]);
 
   const navigate = useNavigate();
 
-  // Sample static stats
+
   const stats = {
     totalCustomers: 1247,
     totalSuppliers: 453,
@@ -141,17 +141,8 @@ const [topReceivers, setTopReceivers] = useState([]);
     todayTransactions: 45
   };
 
-  const topDebtors = [
-    { name: 'Rahul Kumar', amount: 45000, days: 45 },
-    { name: 'Amit Singh', amount: 38000, days: 30 },
-    { name: 'Priya Sharma', amount: 32000, days: 22 }
-  ];
 
-  const topCreditors = [
-    { name: 'ABC Suppliers', amount: 55000, days: 38 },
-    { name: 'XYZ Traders', amount: 42000, days: 25 },
-    { name: 'PQR Industries', amount: 35000, days: 18 }
-  ];
+
 
   const handleClick = () => {
     navigate("/Creatuser");
@@ -177,7 +168,6 @@ const [topReceivers, setTopReceivers] = useState([]);
 
   fetchTopUsers();
 }, []);
-
 
   // ✅ Fetch users from API
   useEffect(() => {
@@ -209,16 +199,14 @@ useEffect(() => {
       searchConnection.state === "Connected" &&
       searchTerm.trim() !== ""
     ) {
-      console.log("🟢 Searching for:", searchTerm);
+      console.log(" Searching for:", searchTerm);
       await searchConnection.invoke("SearchUsers", searchTerm);
     } else if (searchTerm.trim() === "") {
-      setSearchResults([]); // input ഒഴിവായാൽ ഫലങ്ങൾ നീക്കം ചെയ്യാം
+      setSearchResults([]); 
     }
   };
 
-  // ഡീലേ നൽകാൻ (user ടൈപ്പിംഗ് നിർത്തിയ ശേഷം മാത്രം backend call പോകാൻ)
-  const delayDebounce = setTimeout(fetchSearch, 500); // 0.5 സെക്കന്റ് ഡീലേ
-  return () => clearTimeout(delayDebounce);
+  const delayDebounce = setTimeout(fetchSearch, 500); 
 }, [searchTerm, searchConnection]);
 
 
@@ -329,7 +317,7 @@ useEffect(() => {
    <button
   onClick={() => {
     setActive("Supplier");
-    setUsers(suppliers); // ✅ suppliers മാത്രം കാണിക്കാം
+    setUsers(suppliers); 
   }}
   className={`flex-1 text-center py-2 rounded-full text-sm font-medium transition-all duration-300 
     ${active === "Supplier" ? "bg-white text-green-600 shadow" : "text-gray-500"}`}

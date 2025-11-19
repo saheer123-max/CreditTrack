@@ -14,7 +14,7 @@ const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
 
-  // 🔹 Validation
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -38,7 +38,7 @@ const navigate = useNavigate();
     return Object.keys(newErrors).length === 0;
   };
 
-  // 🔹 Input handler
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -47,14 +47,14 @@ const navigate = useNavigate();
     }));
   };
 
-  // 🔹 Submit handler
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError('');
 
     if (validateForm()) {
       try {
-        // Only send required fields to backend
+    
         const payload = {
           username: formData.username,
           email: formData.email,
@@ -86,7 +86,7 @@ const navigate = useNavigate();
     }
   };
 
-  // 🔹 Success Message
+
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">

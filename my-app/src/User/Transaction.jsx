@@ -6,20 +6,20 @@ export default function Transaction() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
    const [balance, setBalance] = useState(null);
-  // userId localStorage-ൽ നിന്ന് set ചെയ്യാം
+
   useEffect(() => {
-    const id = localStorage.getItem("userid"); // key match check
+    const id = localStorage.getItem("userid"); 
     setUserId(id);
 
     
   }, []);
 
 useEffect(() => {
-  if (!userId) return; // userId ഇല്ലെങ്കിൽ skip
+  if (!userId) return;
 
   const fetchTransactionsAndBalance = async () => {
     try {
-      // ✅ 1. Transactions Fetch ചെയ്യുന്നു
+     
       const transactionRes = await axios.get(
         `https://localhost:7044/api/CreditTransaction/user/${userId}`
       );
@@ -27,15 +27,15 @@ useEffect(() => {
       console.log("Transactions:", transactionRes.data);
       setTransactions(transactionRes.data.data || []);
 
-      // ✅ 2. Balance Fetch ചെയ്യുന്നു
+
       const balanceRes = await axios.get(
         `https://localhost:7044/api/CreditTransaction/balance/${userId}`
       );
 
       console.log("Balance:", balanceRes.data);
-      setBalance(balanceRes.data.data); // assuming API returns { data: 1200 }
+      setBalance(balanceRes.data.data);
     } catch (error) {
-      console.error("❌ Error fetching data:", error);
+      console.error(" Error fetching data:", error);
     } finally {
       setLoading(false);
     }

@@ -7,7 +7,7 @@ const Announcement = () => {
   const [message, setMessage] = useState("");
   const [sentMessages, setSentMessages] = useState([]);
 
-  // 🔁 Combine local + API announcements
+
   useEffect(() => {
     if (announcements && announcements.length > 0) {
       const formatted = announcements.map((a) => ({
@@ -38,10 +38,10 @@ const Announcement = () => {
         setSentMessages([newMessage, ...sentMessages]);
 
         setMessage("");
-        alert("✅ Announcement sent to all users!");
+        alert(" Announcement sent to all users!");
       } catch (err) {
         console.error("Send error:", err);
-        alert("❌ Error sending announcement");
+        alert(" Error sending announcement");
       }
     } else {
       alert("⚠️ Not connected to Announcement Hub");

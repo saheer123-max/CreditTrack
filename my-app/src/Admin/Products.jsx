@@ -13,7 +13,7 @@ export default function Products() {
     name: "",
     price: "",
     categoryId: "",
-    image: null, // 🔹 file
+    image: null, 
     
   });
 
@@ -24,7 +24,7 @@ export default function Products() {
 const fetchProducts = async () => {
   try {
     const res = await axios.get("https://localhost:7044/api/Product");
-    setProducts(res.data || []); // ✅ data.data ഒഴിവാക്കുക
+    setProducts(res.data || []); 
     console.log(res.data);
   } catch (err) {
     console.error(err);
@@ -56,11 +56,11 @@ const handleDelete = async (id) => {
   if (!confirm("Are you sure you want to delete this product?")) return;
 
   try {
-    const token = localStorage.getItem("token"); // 🟢 Login സമയത്ത് save ചെയ്ത JWT
+    const token = localStorage.getItem("token"); 
 
     await axios.delete(`https://localhost:7044/api/Product/${id}`, {
       headers: {
-        Authorization: `Bearer ${token}` // 🔐 Backend-ന് token അയക്കുന്നു
+        Authorization: `Bearer ${token}` 
       }
     });
 
@@ -70,17 +70,17 @@ const handleDelete = async (id) => {
   } catch (err) {
     console.error(err);
     if (err.response?.status === 401) {
-      alert("❌ Unauthorized! Please login again.");
+      alert(" Unauthorized! Please login again.");
     } else if (err.response?.status === 403) {
-      alert("🚫 Access Denied! Only Admin can delete.");
+      alert(" Access Denied! Only Admin can delete.");
     } else {
-      alert("❌ Failed to delete product");
+      alert(" Failed to delete product");
     }
   }
 };
 
 
-  // ✅ handleSave with FormData for file upload
+
 const handleSave = async () => {
   if (!formData.name || !formData.price || !formData.categoryId) {
     alert("Please fill all required fields");
@@ -109,7 +109,7 @@ const handleSave = async () => {
     setShowModal(false);
     setFormData({ name: "", price: "", categoryId: "", image: null });
 
-    // 🔁 Re-fetch to show latest data instantly
+
     fetchProducts();
 
   } catch (err) {
