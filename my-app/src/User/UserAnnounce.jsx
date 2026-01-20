@@ -10,7 +10,7 @@ const UserAnnounce= () => {
   return (
     <div className="p-6 bg-white min-h-screen">
       <h2 className="text-2xl font-bold text-center mb-5 text-green-700 flex items-center justify-center gap-2">
-        <Megaphone className="text-green-600 lla" /> Latest Announcements
+        <Megaphone className="text-green-600 " /> Latest Announcements
       </h2>
       <div className="space-y-3 max-w-2xl mx-auto">
         {announcements.length === 0 ? (
