@@ -12,7 +12,7 @@ const UserAnnounce= () => {
       <h2 className="text-2xl font-bold text-center mb-5 text-green-700 flex items-center justify-center gap-2">
         <Megaphone className="text-green-600 " /> Latest Announcements
       </h2>
-      <div className="space-y-3 max-w-2xl mx-auto">
+      <div className="space-y-3 max-w-2xl1 mx-auto">
         {announcements.length === 0 ? (
           <p className="text-center text-gray-500">No announcements yet...</p>
         ) : (
